@@ -31,155 +31,170 @@ class MessageServiceIntegrationTest {
     @Autowired
     private MessageService messageService;
 
-    @Test
-    void shouldAllowRegisterMessage(){
-        // Arrange
-        var message = MessageHelper.createMessage();
+    @Nested
+    class RegisterMessageTest {
+        @Test
+        void shouldAllowRegisterMessage() {
+            // Arrange
+            var message = MessageHelper.createMessage();
 
-        // Act
-        var result = messageService.registerMessage(message);
+            // Act
+            var result = messageService.registerMessage(message);
 
-        // Assert
-        assertThat(result)
-                .isNotNull()
-                .isInstanceOf(Message.class);
-        assertThat(result.getId()).isNotNull();
-        assertThat(result.getCreatedAt()).isNotNull();
-        assertThat(result.getLikeCount()).isNotNull();
+            // Assert
+            assertThat(result)
+                    .isNotNull()
+                    .isInstanceOf(Message.class);
+            assertThat(result.getId()).isNotNull();
+            assertThat(result.getCreatedAt()).isNotNull();
+            assertThat(result.getLikeCount()).isNotNull();
+        }
     }
 
-    @Test
-    void shouldAllowGetMessage(){
-        // Arrange
-        var newMessage = MessageHelper.createMessage();
-        var message = messageService.registerMessage(newMessage);
-        var id = message.getId();
+    @Nested
+    class GetMessageTest {
+        @Test
+        void shouldAllowGetMessage() {
+            // Arrange
+            var newMessage = MessageHelper.createMessage();
+            var message = messageService.registerMessage(newMessage);
+            var id = message.getId();
 
-        // Act
-        var result = messageService.getMessage(id);
+            // Act
+            var result = messageService.getMessage(id);
 
-        // Assert
-        assertThat(result)
-                .isNotNull()
-                .isInstanceOf(Message.class);
-        assertThat(result.getId())
-                .isNotNull()
-                .isEqualTo(id);
-        assertThat(result.getUsername())
-                .isNotNull()
-                .isEqualTo(message.getUsername());
-        assertThat(result.getContent())
-                .isNotNull()
-                .isEqualTo(message.getContent());
-        assertThat(result.getCreatedAt())
-                .isNotNull();
-        assertThat(result.getLikeCount())
-                .isEqualTo(message.getLikeCount());
+            // Assert
+            assertThat(result)
+                    .isNotNull()
+                    .isInstanceOf(Message.class);
+            assertThat(result.getId())
+                    .isNotNull()
+                    .isEqualTo(id);
+            assertThat(result.getUsername())
+                    .isNotNull()
+                    .isEqualTo(message.getUsername());
+            assertThat(result.getContent())
+                    .isNotNull()
+                    .isEqualTo(message.getContent());
+            assertThat(result.getCreatedAt())
+                    .isNotNull();
+            assertThat(result.getLikeCount())
+                    .isEqualTo(message.getLikeCount());
+        }
+
+        @Test
+        void shouldThrowExceptionWhenGetIfMessageIdNotFound() {
+            // Arrange
+            var id = UUID.randomUUID();
+
+            // Act && Assert
+            assertThatThrownBy(() -> messageService.getMessage(id))
+                    .isInstanceOf(MessageNotFoundException.class)
+                    .hasMessage("Message not found");
+        }
     }
 
-    @Test
-    void shouldThrowExceptionWhenGetIfMessageIdNotFound() {
-        // Arrange
-        var id = UUID.randomUUID();
+    @Nested
+    class UpdateMessageTest {
+        @Test
+        void shouldAllowEditMessage() {
+            // Arrange
+            var newMessage = MessageHelper.createMessage();
+            var message = messageService.registerMessage(newMessage);
+            var id = message.getId();
+            newMessage.setContent("Hello, my friend!");
 
-        // Act && Assert
-        assertThatThrownBy(() -> messageService.getMessage(id))
-                .isInstanceOf(MessageNotFoundException.class)
-                .hasMessage("Message not found");
+            // Act
+            var result = messageService.updateMessage(id, newMessage);
+
+            // Assert
+            assertThat(result.getId())
+                    .isNotNull()
+                    .isEqualTo(newMessage.getId());
+            assertThat(result.getUsername())
+                    .isEqualTo(newMessage.getUsername());
+            assertThat(result.getContent())
+                    .isEqualTo(newMessage.getContent());
+        }
+
+
+        @Test
+        void shouldThrowExceptionWhenUpdateIfMessageIdNotFound() {
+            // Arrange
+            var id = UUID.randomUUID();
+            var updatedMessage = MessageHelper.createMessage();
+            updatedMessage.setId(id);
+
+            // Act & Assert
+            assertThatThrownBy(() -> messageService.updateMessage(id, updatedMessage))
+                    .isInstanceOf(MessageNotFoundException.class)
+                    .hasMessage("Message not found");
+        }
+
+        @Test
+        void shouldThrowExceptionWhenUpdateIfMessageIdIsNotEqual() {
+            // Arrange
+            var newMessage = MessageHelper.createMessage();
+            var message = messageService.registerMessage(newMessage);
+            var id = message.getId();
+            newMessage.setId(UUID.randomUUID());
+            newMessage.setContent("Hello, my friend!");
+
+            // Act & Assert
+            assertThatThrownBy(() -> messageService.updateMessage(id, newMessage))
+                    .isInstanceOf(MessageNotFoundException.class)
+                    .hasMessage("Updated message does not have the correct ID");
+        }
     }
 
-    @Test
-    void shouldAllowEditMessage(){
-        // Arrange
-        var newMessage = MessageHelper.createMessage();
-        var message = messageService.registerMessage(newMessage);
-        var id = message.getId();
-        newMessage.setContent("Hello, my friend!");
+    @Nested
+    class DeleteMessageTest {
+        @Test
+        void shouldAllowDeleteMessage() {
+            // Arrange
+            var newMessage = MessageHelper.createMessage();
+            var message = messageService.registerMessage(newMessage);
+            var id = message.getId();
 
-        // Act
-        var result = messageService.updateMessage(id, newMessage);
+            // Act
+            var result = messageService.deleteMessage(id);
 
-        // Assert
-        assertThat(result.getId())
-                .isNotNull()
-                .isEqualTo(newMessage.getId());
-        assertThat(result.getUsername())
-                .isEqualTo(newMessage.getUsername());
-        assertThat(result.getContent())
-                .isEqualTo(newMessage.getContent());
+            // Arrange
+            assertThat(result).isTrue();
+
+        }
+
+        @Test
+        void shouldThrowExceptionWhenDeleteIfMessageIdNotFound() {
+            // Arrange
+            var id = UUID.randomUUID();
+
+            // Act & Assert
+            assertThatThrownBy(() -> messageService.deleteMessage(id))
+                    .isInstanceOf(MessageNotFoundException.class)
+                    .hasMessage("Message not found");
+
+        }
     }
 
+    @Nested
+    class ListMessagesTest {
+        @Test
+        void shouldAllowListMessages() {
+            // Arrange
+            var newMessage = MessageHelper.createMessage();
 
-    @Test
-    void shouldThrowExceptionWhenUpdateIfMessageIdNotFound(){
-        // Arrange
-        var id = UUID.randomUUID();
-        var updatedMessage = MessageHelper.createMessage();
-        updatedMessage.setId(id);
+            // Act
+            messageService.registerMessage(newMessage);
+            Page<Message> messageListResult = messageService.listMessages(Pageable.unpaged());
 
-        // Act & Assert
-        assertThatThrownBy(() -> messageService.updateMessage(id, updatedMessage))
-                .isInstanceOf(MessageNotFoundException.class)
-                .hasMessage("Message not found");
-    }
-
-    @Test
-    void shouldThrowExceptionWhenUpdateIfMessageIdIsNotEqual(){
-        // Arrange
-        var newMessage = MessageHelper.createMessage();
-        var message = messageService.registerMessage(newMessage);
-        var id = message.getId();
-        newMessage.setId(UUID.randomUUID());
-        newMessage.setContent("Hello, my friend!");
-
-        // Act & Assert
-        assertThatThrownBy(() -> messageService.updateMessage(id, newMessage))
-                .isInstanceOf(MessageNotFoundException.class)
-                .hasMessage("Updated message does not have the correct ID");
-    }
-
-    @Test
-    void shouldAllowDeleteMessage(){
-        // Arrange
-        var newMessage = MessageHelper.createMessage();
-        var message = messageService.registerMessage(newMessage);
-        var id = message.getId();
-
-        // Act
-        var result = messageService.deleteMessage(id);
-
-        // Arrange
-        assertThat(result).isTrue();
-
-    }
-
-    @Test
-    void shouldThrowExceptionWhenDeleteIfMessageIdNotFound(){
-        // Arrange
-        var id = UUID.randomUUID();
-
-        // Act & Assert
-        assertThatThrownBy(() -> messageService.deleteMessage(id))
-                .isInstanceOf(MessageNotFoundException.class)
-                .hasMessage("Message not found");
-
-    }
-
-    @Test
-    void shouldAllowListMessages(){
-        // Arrange
-        var newMessage = MessageHelper.createMessage();
-
-        // Act
-        messageService.registerMessage(newMessage);
-        Page<Message> messageListResult = messageService.listMessages(Pageable.unpaged());
-
-        // Assert
-        assertThat(messageListResult.getContent())
-                .asList()
-                .isNotEmpty()
-                .allSatisfy(message ->{
-                    assertThat(message).isInstanceOf(Message.class);
-                });
+            // Assert
+            assertThat(messageListResult.getContent())
+                    .asList()
+                    .isNotEmpty()
+                    .allSatisfy(message -> {
+                        assertThat(message).isInstanceOf(Message.class);
+                    });
+        }
     }
 }
