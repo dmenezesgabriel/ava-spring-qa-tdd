@@ -80,7 +80,7 @@ class MessageControllerTest {
         }
 
         @Test
-        void shouldThrowExceptionWhenMessagePayloadIsTypeXML() throws Exception {
+        void shouldThrowExceptionWhenRegisterIfMessagePayloadIsTypeXML() throws Exception {
             // Arrange
             String xmlPayload = """
             <message><username>Name</username><content>Hello!</content></message>
@@ -193,7 +193,7 @@ class MessageControllerTest {
         }
 
         @Test
-        void shouldThrowExceptionWhenMessagePayloadIsTypeXML() throws Exception {
+        void shouldThrowExceptionWhenUpdateIfMessagePayloadIsTypeXML() throws Exception {
             // Arrange
             var id = UUID.randomUUID();
             String xmlPayload = "<message><id>" + id + "</id><username>Name</username><content>Hello!</content></message> ";

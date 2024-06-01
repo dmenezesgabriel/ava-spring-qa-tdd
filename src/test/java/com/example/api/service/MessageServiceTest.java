@@ -81,7 +81,7 @@ class MessageServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenGetIfIfMessageIdNotFound() {
+    void shouldThrowExceptionWhenGetIfMessageIdNotFound() {
         // Arrange
         var id = UUID.randomUUID();
         when(messageRepository.findById(id))
@@ -124,7 +124,7 @@ class MessageServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenUpdateIfIfMessageIdNotFound() {
+    void shouldThrowExceptionWhenUpdateIfMessageIdNotFound() {
         // Arrange
         var id = UUID.randomUUID();
         var message = MessageHelper.createMessage();
@@ -140,7 +140,7 @@ class MessageServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenUpdateMessageIdIsNotEqual() {
+    void shouldThrowExceptionWhenUpdateIfMessageIdIsNotEqual() {
         // Arrange
         var id = UUID.randomUUID();
         var oldMessage = MessageHelper.createMessage();
@@ -179,7 +179,7 @@ class MessageServiceTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenDeleteIfIfMessageIdNotFound() {
+    void shouldThrowExceptionWhenDeleteIfMessageIdNotFound() {
         // Arrange
         var id = UUID.randomUUID();
         when(messageRepository.findById(id)).thenReturn(Optional.empty());
