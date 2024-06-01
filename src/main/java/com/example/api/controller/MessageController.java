@@ -53,4 +53,18 @@ public class MessageController {
                     .body(messageNotFoundException.getMessage());
         }
     }
+
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<?> deleteMessage(@PathVariable String id) {
+        var uuid = UUID.fromString(id);
+        try {
+            messageService.deleteMessage(uuid);
+            return new ResponseEntity<>("Message deleted", HttpStatus.OK);
+        } catch (MessageNotFoundException messageNotFoundException) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(messageNotFoundException.getMessage());
+        }
+    }
 }
+

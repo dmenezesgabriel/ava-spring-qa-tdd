@@ -212,12 +212,31 @@ class MessageControllerTest {
     @Nested
     class DeleteMessageTest {
         @Test
-        void shouldAllowDeleteMessage() {
-            fail("NotImplementedError");
+        void shouldAllowDeleteMessage() throws Exception {
+            // Arrange
+            var id = UUID.randomUUID();
+            when(messageService.deleteMessage(id)).thenReturn(true);
+
+            // Act & Assert
+            mockMVC.perform(delete("/messages/{id}", id))
+                    .andExpect(status().isOk())
+                    .andExpect(content().string("Message deleted"));
+            verify(messageService, times(1)).deleteMessage(id);
         }
+
         @Test
-        void shouldThrowExceptionWhenDeleteIfMessageIdNotFound() {
-            fail("NotImplementedError");
+        void shouldThrowExceptionWhenDeleteIfMessageIdNotFound() throws Exception {
+            // Arrange
+            var id = UUID.randomUUID();
+            var exceptionContent = "Message not found";
+            when(messageService.deleteMessage(id))
+                    .thenThrow(new MessageNotFoundException(exceptionContent));
+
+            mockMVC.perform(delete("/messages/{id}", id))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string(exceptionContent));
+
+            verify(messageService, times(1)).deleteMessage(id);
         }
     }
 
