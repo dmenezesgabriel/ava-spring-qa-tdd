@@ -153,7 +153,7 @@ class MessageControllerTest {
             var id = UUID.randomUUID();
             var newMessage = MessageHelper.createMessage();
             newMessage.setId(id);
-            var exceptionContent = "Incorrect ID for updated message";
+            var exceptionContent = "Message not found";
             when(messageService.updateMessage(id, newMessage))
                     .thenThrow(new MessageNotFoundException(exceptionContent));
 
@@ -170,8 +170,26 @@ class MessageControllerTest {
         }
 
         @Test
-        void shouldThrowExceptionWhenUpdateIfMessageIdIsNotEqual() {
-            fail("NotImplementedError");
+        void shouldThrowExceptionWhenUpdateIfMessageIdIsNotEqual() throws Exception {
+            // Arrange
+            var id = UUID.randomUUID();
+            var newMessage = MessageHelper.createMessage();
+            newMessage.setId(id);
+            var differentId = UUID.randomUUID();
+            var exceptionContent = "Incorrect ID for updated message";
+            when(messageService.updateMessage(differentId, newMessage))
+                    .thenThrow(new MessageNotFoundException(exceptionContent));
+
+            // Act & Assert
+            mockMVC.perform(put("/messages/{id}", differentId)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(asJsonString(newMessage)))
+//                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string(exceptionContent));
+
+            verify(messageService, times(1))
+                    .updateMessage(any(UUID.class), any(Message.class));
         }
 
         @Test
