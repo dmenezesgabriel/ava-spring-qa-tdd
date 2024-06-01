@@ -1,5 +1,6 @@
 package com.example.api.controller;
 
+import com.example.api.exception.MessageNotFoundException;
 import com.example.api.model.Message;
 import com.example.api.service.MessageService;
 import com.example.api.utils.MessageHelper;
@@ -21,8 +22,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -72,6 +72,22 @@ class MessageControllerTest {
             ).andExpect(status().isCreated());
             verify(messageService, times(1)).registerMessage(any(Message.class));
         }
+
+        @Test
+        void shouldThrowExceptionWhenMessagePayloadIsTypeXML() throws Exception {
+            // Arrange
+            String xmlPayload = """
+            <message><username>Name</username><content>Hello!</content></message>
+            """;
+
+            // Act & Assert
+            mockMVC.perform(post("/messages")
+                            .contentType(MediaType.APPLICATION_XML)
+                            .content(xmlPayload))
+                    .andExpect(status().isUnsupportedMediaType());
+            verify(messageService, never())
+                    .registerMessage(any(Message.class));
+        }
     }
 
     @Nested
@@ -90,8 +106,15 @@ class MessageControllerTest {
             verify(messageService, times(1)).getMessage(any(UUID.class));
         }
         @Test
-        void shouldThrowExceptionWhenGetIfMessageIdNotFound() {
-            fail("NotImplementedError");
+        void shouldThrowExceptionWhenGetIfMessageIdNotFound() throws Exception {
+            // Arrange
+            var id = UUID.randomUUID();
+            when(messageService.getMessage(id))
+                    .thenThrow(MessageNotFoundException.class);
+            // Act
+            mockMVC.perform(get("/messages/{id}", id))
+                    .andExpect(status().isBadRequest());
+            verify(messageService, times(1)).getMessage(id);
 
         }
     }
@@ -99,17 +122,48 @@ class MessageControllerTest {
     @Nested
     class UpdateMessageTest {
         @Test
-        void shouldAllowEditMessage(){
-            fail("NotImplementedError");
+        void shouldAllowUpdateMessage() throws Exception {
+            // Arrange
+            var id = UUID.randomUUID();
+            var newMessage = MessageHelper.createMessage();
+            newMessage.setId(id);
+            when(messageService.updateMessage(any(UUID.class), any(Message.class)))
+                    .thenAnswer(index -> index.getArgument(1));
+
+            // Act & Assert
+            mockMVC.perform(put("/messages/{id}", id)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(asJsonString(newMessage))
+                    ).andExpect(status().isOk());
+            verify(messageService, times(1))
+                    .updateMessage(id, newMessage);
         }
+
         @Test
         void shouldThrowExceptionWhenUpdateIfMessageIdNotFound() {
             fail("NotImplementedError");
         }
+
         @Test
         void shouldThrowExceptionWhenUpdateIfMessageIdIsNotEqual() {
             fail("NotImplementedError");
         }
+
+        @Test
+        void shouldThrowExceptionWhenMessagePayloadIsTypeXML() throws Exception {
+            // Arrange
+            var id = UUID.randomUUID();
+            String xmlPayload = "<message><id>" + id + "</id><username>Name</username><content>Hello!</content></message> ";
+
+            // Act & Assert
+            mockMVC.perform(put("/messages/{id}", id)
+                            .contentType(MediaType.APPLICATION_XML)
+                            .content(xmlPayload))
+                    .andExpect(status().isUnsupportedMediaType());
+            verify(messageService, never())
+                    .updateMessage(any(UUID.class),any(Message.class));
+        }
+
     }
 
     @Nested
