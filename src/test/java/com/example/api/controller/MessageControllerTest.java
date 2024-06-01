@@ -23,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -40,6 +42,10 @@ class MessageControllerTest {
         mock = MockitoAnnotations.openMocks(this);
         MessageController messageController = new MessageController(messageService);
         mockMVC = MockMvcBuilders.standaloneSetup(messageController)
+                .addFilter((request, response, chain) -> {
+                    response.setCharacterEncoding(("UTF-8"));
+                    chain.doFilter(request, response);
+                })
                 .build();
     }
 
@@ -127,6 +133,7 @@ class MessageControllerTest {
             var id = UUID.randomUUID();
             var newMessage = MessageHelper.createMessage();
             newMessage.setId(id);
+
             when(messageService.updateMessage(any(UUID.class), any(Message.class)))
                     .thenAnswer(index -> index.getArgument(1));
 
@@ -135,13 +142,31 @@ class MessageControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(asJsonString(newMessage))
                     ).andExpect(status().isOk());
+
             verify(messageService, times(1))
                     .updateMessage(id, newMessage);
         }
 
         @Test
-        void shouldThrowExceptionWhenUpdateIfMessageIdNotFound() {
-            fail("NotImplementedError");
+        void shouldThrowExceptionWhenUpdateIfMessageIdNotFound() throws Exception {
+            // Arrange
+            var id = UUID.randomUUID();
+            var newMessage = MessageHelper.createMessage();
+            newMessage.setId(id);
+            var exceptionContent = "Incorrect ID for updated message";
+            when(messageService.updateMessage(id, newMessage))
+                    .thenThrow(new MessageNotFoundException(exceptionContent));
+
+            // Act & Assert
+            mockMVC.perform(put("/messages/{id}", id)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(asJsonString(newMessage)))
+//                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string(exceptionContent));
+
+            verify(messageService, times(1))
+                    .updateMessage(any(UUID.class), any(Message.class));
         }
 
         @Test

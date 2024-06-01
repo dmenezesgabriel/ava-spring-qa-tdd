@@ -42,9 +42,15 @@ public class MessageController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public  ResponseEntity<Message> updateMessage(@PathVariable String id, @RequestBody Message message) {
+    public  ResponseEntity<?> updateMessage(@PathVariable String id, @RequestBody Message message) {
         var uuid = UUID.fromString(id);
-        var updatedMessage = messageService.updateMessage(uuid, message);
-        return new ResponseEntity<>(updatedMessage, HttpStatus.OK);
+        try {
+            var updatedMessage = messageService.updateMessage(uuid, message);
+            return new ResponseEntity<>(updatedMessage, HttpStatus.OK);
+        } catch (MessageNotFoundException messageNotFoundException) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(messageNotFoundException.getMessage());
+        }
     }
 }
