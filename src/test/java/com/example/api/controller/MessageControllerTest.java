@@ -24,12 +24,15 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.Collections;
 import java.util.UUID;
 
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 
 
 class MessageControllerTest {
@@ -253,16 +256,55 @@ class MessageControllerTest {
             // https://github.com/spring-projects/spring-data-commons/issues/2987
             Pageable pageable = PageRequest.of(0, 10);
             var messageList = Collections.singletonList(newMessage);
-            Page<Message> page = new PageImpl<>(messageList, pageable, messageList.size());
+            Page<Message> page = new PageImpl<>(
+                    messageList,
+                    pageable,
+                    messageList.size()
+            );
 
             when(messageService.listMessages(any(Pageable.class)))
                     .thenReturn(page);
 
             // Act & Assert
             mockMVC.perform(get("/messages")
+                            .param("page", "0")
+                            .param("size", "10")
                     .contentType(MediaType.APPLICATION_JSON))
                     // .andDo(print())
-                    .andExpect(status().isOk());
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.content", not(empty())))
+                    .andExpect(jsonPath("$.totalPages").value(1))
+                    .andExpect(jsonPath("$.totalElements").value(1));
+
+            verify(messageService, times(1))
+                    .listMessages(any(Pageable.class));
+        }
+
+        @Test
+        void shouldAllowListMessagesWhenPaginationParamsNotInformed() throws Exception {
+            // Arrange
+            var newMessage = MessageHelper.createMessage();
+            // https://github.com/spring-projects/spring-data-commons/issues/2987
+            Pageable pageable = PageRequest.of(0, 10);
+            var messageList = Collections.singletonList(newMessage);
+            Page<Message> page = new PageImpl<>(
+                    messageList,
+                    pageable,
+                    messageList.size()
+            );
+
+            when(messageService.listMessages(any(Pageable.class)))
+                    .thenReturn(page);
+
+            // Act & Assert
+            mockMVC.perform(get("/messages")
+                            .contentType(MediaType.APPLICATION_JSON))
+                    // .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.content", not(empty())))
+                    .andExpect(jsonPath("$.totalPages").value(1))
+                    .andExpect(jsonPath("$.totalElements").value(1));
+
             verify(messageService, times(1))
                     .listMessages(any(Pageable.class));
         }
