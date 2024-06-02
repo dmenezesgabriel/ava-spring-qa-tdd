@@ -13,10 +13,15 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.Collections;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.fail;
@@ -24,8 +29,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 class MessageControllerTest {
@@ -243,8 +247,24 @@ class MessageControllerTest {
     @Nested
     class ListMessagesTest {
         @Test
-        void shouldAllowListMessages() {
-            fail("NotImplementedError");
+        void shouldAllowListMessages() throws Exception {
+            // Arrange
+            var newMessage = MessageHelper.createMessage();
+            // https://github.com/spring-projects/spring-data-commons/issues/2987
+            Pageable pageable = PageRequest.of(0, 10);
+            var messageList = Collections.singletonList(newMessage);
+            Page<Message> page = new PageImpl<>(messageList, pageable, messageList.size());
+
+            when(messageService.listMessages(any(Pageable.class)))
+                    .thenReturn(page);
+
+            // Act & Assert
+            mockMVC.perform(get("/messages")
+                    .contentType(MediaType.APPLICATION_JSON))
+                    // .andDo(print())
+                    .andExpect(status().isOk());
+            verify(messageService, times(1))
+                    .listMessages(any(Pageable.class));
         }
     }
 }
