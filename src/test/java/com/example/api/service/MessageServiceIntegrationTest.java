@@ -36,7 +36,7 @@ class MessageServiceIntegrationTest {
         @Test
         void shouldAllowRegisterMessage() {
             // Arrange
-            var message = MessageHelper.createMessage();
+            var message = MessageHelper.createFullMessage();
 
             // Act
             var result = messageService.registerMessage(message);
@@ -56,7 +56,7 @@ class MessageServiceIntegrationTest {
         @Test
         void shouldAllowGetMessage() {
             // Arrange
-            var newMessage = MessageHelper.createMessage();
+            var newMessage = MessageHelper.createFullMessage();
             var message = messageService.registerMessage(newMessage);
             var id = message.getId();
 

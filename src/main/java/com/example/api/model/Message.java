@@ -34,9 +34,13 @@ public class Message {
     @NotEmpty(message = "Content may not be null")
     private String content;
 
-    @Builder.Default
+    @CreationTimestamp
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSSSS")
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
+
+    @CreationTimestamp
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSSSS")
+    private LocalDateTime updatedAt;
 
     @Builder.Default
     private int likeCount = 0;
