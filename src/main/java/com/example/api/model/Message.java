@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -44,4 +45,11 @@ public class Message {
 
     @Builder.Default
     private int likeCount = 0;
+
+    @PrePersist
+    public void prePersist() {
+        var timestamp = LocalDateTime.now();
+        createdAt = timestamp;
+        updatedAt = timestamp;
+    }
 }

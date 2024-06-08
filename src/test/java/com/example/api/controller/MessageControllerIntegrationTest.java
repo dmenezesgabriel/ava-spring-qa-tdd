@@ -5,6 +5,7 @@ import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureTestDatabase
 public class MessageControllerIntegrationTest {
 
     @LocalServerPort
@@ -33,9 +35,9 @@ public class MessageControllerIntegrationTest {
             given()
                     .contentType(MediaType.APPLICATION_JSON_VALUE)
                     .body(message)
-                    .when()
+            .when()
                     .post("/messages")
-                    .then()
+            .then()
                     .statusCode(HttpStatus.CREATED.value());
         }
 
