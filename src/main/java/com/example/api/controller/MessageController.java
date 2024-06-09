@@ -69,7 +69,7 @@ public class MessageController {
         var uuid = UUID.fromString(id);
         try {
             var updatedMessage = messageService.updateMessage(uuid, message);
-            return new ResponseEntity<>(updatedMessage, HttpStatus.OK);
+            return new ResponseEntity<>(updatedMessage, HttpStatus.ACCEPTED);
         } catch (MessageNotFoundException messageNotFoundException) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)

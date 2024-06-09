@@ -148,7 +148,7 @@ class MessageControllerTest {
             mockMVC.perform(put("/messages/{id}", id)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(asJsonString(newMessage))
-                    ).andExpect(status().isOk());
+                    ).andExpect(status().isAccepted());
 
             verify(messageService, times(1))
                     .updateMessage(id, newMessage);

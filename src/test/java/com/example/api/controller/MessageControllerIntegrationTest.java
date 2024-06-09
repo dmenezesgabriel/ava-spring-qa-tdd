@@ -1,5 +1,6 @@
 package com.example.api.controller;
 
+import com.example.api.model.Message;
 import com.example.api.utils.MessageHelper;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,7 +12,14 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.when;
+import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasKey;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -35,28 +43,57 @@ public class MessageControllerIntegrationTest {
             given()
                     .contentType(MediaType.APPLICATION_JSON_VALUE)
                     .body(message)
-            .when()
+                    // .log().all()
+                    .when()
                     .post("/messages")
-            .then()
-                    .statusCode(HttpStatus.CREATED.value());
+                    .then()
+                    // .log().all()
+                    .statusCode(HttpStatus.CREATED.value())
+                    .body(matchesJsonSchemaInClasspath("schemas/MessageSchema.json"));
+
         }
 
         @Test
         void shouldThrowExceptionWhenRegisterIfMessagePayloadIsTypeXML() {
-            fail("NotImplementedError");
+            String xmlPayload = """
+                <message><username>Name</username><content>Hello!</content></message>
+                """;
+            given()
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .body(xmlPayload)
+                    .when()
+                    .post("/messages")
+                    .then()
+                    .statusCode(HttpStatus.BAD_REQUEST.value())
+                    .body("$", hasKey("timestamp"))
+                    .body("$", hasKey("status"))
+                    .body("$", hasKey("error"))
+                    .body("$", hasKey("path"))
+                    .body("error", equalTo("Bad Request"))
+                    .body("path", equalTo("/messages"));
         }
+
     }
 
     @Nested
     class GetMessage {
         @Test
         void shouldAllowGetMessage() {
-            fail("NotImplementedError");
+            var id = "cf9f5083-c5fb-4061-91cf-cd80eec30c89";
+
+            when()
+                .get("/messages/{id}", id)
+                .then()
+                .statusCode(HttpStatus.OK.value());
         }
 
         @Test
         void shouldThrowExceptionWhenGetIfMessageIdNotFound() {
-            fail("NotImplementedError");
+            var id = UUID.randomUUID();
+            when()
+                    .get("/messages/{id}", id)
+                    .then()
+                    .statusCode(HttpStatus.BAD_REQUEST.value());
         }
     }
 
@@ -64,22 +101,79 @@ public class MessageControllerIntegrationTest {
     class UpdateMessage {
         @Test
         void shouldAllowUpdateMessage() {
-            fail("NotImplementedError");
+            var id = UUID.fromString("450fb656-3b0a-4044-9976-06e04d2df74e");
+            var timestamp = LocalDateTime.now();
+            var message = Message.builder()
+                    .id(id)
+                    .username("Adam")
+                    .content("Hello, World! 04")
+                    .updatedAt(timestamp)
+                    .build();
+            given()
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .body(message)
+                    .when()
+                    .put("/messages/{id}", id)
+                    .then()
+                    .statusCode(HttpStatus.ACCEPTED.value())
+                    .body(matchesJsonSchemaInClasspath("schemas/MessageSchema.json"));
         }
 
         @Test
         void shouldThrowExceptionWhenUpdateIfMessageIdNotFound() {
-            fail("NotImplementedError");
+            var id = UUID.randomUUID();
+            var timestamp = LocalDateTime.now();
+            var message = Message.builder()
+                    .id(id)
+                    .username("Someone")
+                    .content("Hello, World! x")
+                    .updatedAt(timestamp)
+                    .build();
+            given()
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .body(message)
+                    .when()
+                    .put("/messages/{id}", id)
+                    .then()
+                    .statusCode(HttpStatus.BAD_REQUEST.value())
+                    .body(equalTo("Message not found"));
         }
 
         @Test
         void shouldThrowExceptionWhenUpdateIfMessageIdIsNotEqual() {
-            fail("NotImplementedError");
+            var id = UUID.fromString("450fb656-3b0a-4044-9976-06e04d2df74");
+            var timestamp = LocalDateTime.now();
+            var message = Message.builder()
+                    .id(id)
+                    .username("Someone")
+                    .content("Hello, World! x")
+                    .updatedAt(timestamp)
+                    .build();
+            given()
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .body(message)
+                    .when()
+                    .put("/messages/{id}", "450fb656-3b0a-4044-9976-06e04d2df74e")
+                    .then()
+                    .statusCode(HttpStatus.BAD_REQUEST.value())
+                    .body(equalTo("Updated message does not have the correct ID"));
         }
 
         @Test
         void shouldThrowExceptionWhenUpdateIfMessagePayloadIsTypeXML() {
-            fail("NotImplementedError");
+            var id = UUID.fromString("450fb656-3b0a-4044-9976-06e04d2df74e");
+            String xmlPayload = """
+                <message><username>Name</username><content>Hello!</content></message>
+                """;
+            given()
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .body(xmlPayload)
+                    .when()
+                    .put("/messages/{id}", id)
+                    .then()
+                    .statusCode(HttpStatus.BAD_REQUEST.value())
+                    .body("error", equalTo("Bad Request"))
+                    .body("path", equalTo("/messages/450fb656-3b0a-4044-9976-06e04d2df74e"));
         }
     }
 
@@ -87,12 +181,22 @@ public class MessageControllerIntegrationTest {
     class DeleteMessage {
         @Test
         void shouldAllowDeleteMessage() {
-            fail("NotImplementedError");
+            var id = UUID.fromString("f4158f3e-7d31-45e9-84bd-19fdea672af3");
+            when()
+                    .delete("/messages/{id}", id)
+                    .then()
+                    .statusCode(HttpStatus.OK.value())
+                    .body(equalTo("Message deleted"));
         }
 
         @Test
         void shouldThrowExceptionWhenDeleteIfMessageIdNotFound() {
-            fail("NotImplementedError");
+            var id = UUID.randomUUID();
+            when()
+                    .delete("/messages/{id}", id)
+                    .then()
+                    .statusCode(HttpStatus.BAD_REQUEST.value())
+                    .body(equalTo("Message not found"));
         }
     }
 
@@ -100,12 +204,24 @@ public class MessageControllerIntegrationTest {
     class ListMessages {
         @Test
         void shouldAllowListMessages() {
-            fail("NotImplementedError");
+            given()
+                    .queryParam("page", "0")
+                    .queryParam("size", "10")
+                    .when()
+                    .get("/messages")
+                    .then()
+                    .statusCode(HttpStatus.OK.value())
+                    .body(matchesJsonSchemaInClasspath("schemas/MessagePaginationSchema.json"));
         }
 
         @Test
         void shouldAllowListMessagesWhenPaginationParamsNotInformed() {
-            fail("NotImplementedError");
+            given()
+                    .when()
+                    .get("/messages")
+                    .then()
+                    .statusCode(HttpStatus.OK.value())
+                    .body(matchesJsonSchemaInClasspath("schemas/MessagePaginationSchema.json"));
         }
     }
 }

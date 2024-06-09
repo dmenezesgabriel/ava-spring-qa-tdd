@@ -35,6 +35,7 @@ public class MessageServiceImpl implements MessageService {
             throw  new MessageNotFoundException("Updated message does not have the correct ID");
         }
         message.setContent(updatedMessage.getContent());
+        message.setUpdatedAt(updatedMessage.getUpdatedAt());
         return messageRepository.save(message);
     }
 
