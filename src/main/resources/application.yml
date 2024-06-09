@@ -1,18 +1,10 @@
 spring:
   datasource:
-    url: jbc:h2:mem:testdb
-    username: root
-    password: toor
-    driverClassName: org.h2.Driver
+    driverClassName: org.postgresql.Driver
+    username: postgres
+    password: postgres
+    url: jdbc:postgresql://localhost:5432/postgres
   jpa:
-    database: h2
-    database-platform: org.hibernate.dialect.H2Dialect
-    defer-datasource-initialization: true
+    database: postgresql
     hibernate:
-      ddl-auto: create-drop
-  sql:
-    init:
-      mode: always
-  h2:
-    console:
-      enabled: true
+      ddl-auto: create
