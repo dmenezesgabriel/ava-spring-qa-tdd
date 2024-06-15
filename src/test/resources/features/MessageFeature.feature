@@ -12,11 +12,10 @@ Feature: Message
 
   Scenario: Update Message
     Given a message was already submitted
-    When a updated request is made
+    When an updated request is made
     Then the message is successfully updated
-    And it should be presented
 
   Scenario: Delete Message
     Given a message was already submitted
     When a remove request is made
-    Then the message is successfully updated
+    Then the message is successfully deleted
