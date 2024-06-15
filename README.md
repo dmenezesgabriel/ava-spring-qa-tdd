@@ -30,3 +30,24 @@ mvn test -P integration-test
 ```shell
 mvn test -P system-test
 ```
+
+- **Smoke tests**:
+
+```shell
+mvn test -P system-test -Dcucumber.filter.tags=@smoke
+```
+
+## Alure Report
+
+- **Install**:
+
+```shell
+npm install -g allure-commandline
+```
+
+- **Run**:
+```shell
+npx allure serve target/allure-results
+```
+
+PATH=$(npm get prefix)

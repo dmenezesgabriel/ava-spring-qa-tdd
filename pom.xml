@@ -117,6 +117,14 @@
       <version>1.9.3</version>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>io.qameta.allure</groupId>
+      <artifactId>allure-junit5</artifactId>
+      <version>2.23.0</version>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
   <build>
@@ -155,7 +163,17 @@
                   **/*IntegrationTest.java
                 </exclude>
               </excludes>
+              <properties>
+                <junit.jupiter.extensions.autodetection.enabled>true</junit.jupiter.extensions.autodetection.enabled>
+              </properties>
             </configuration>
+            <dependencies>
+              <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjweaver</artifactId>
+                <version>${aspectj.version}</version>
+              </dependency>
+            </dependencies>
           </plugin>
         </plugins>
       </build>
