@@ -35,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 
-class MessageControllerTest {
+class MessageControllerUnitTest {
 
     private MockMvc mockMVC;
 

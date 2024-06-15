@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-class MessageServiceTest {
+class MessageServiceUnitTest {
 
     private MessageService messageService;
 

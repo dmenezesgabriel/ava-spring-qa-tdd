@@ -18,7 +18,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 
-public class MessageRepositoryTest {
+public class MessageRepositoryUnitTest {
 
     @Mock
     private MessageRepository messageRepository;

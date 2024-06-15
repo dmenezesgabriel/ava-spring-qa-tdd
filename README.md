@@ -7,8 +7,26 @@ Project done in FIAP's Software Architecture Post Graduation course with the pur
 - Unit tests mocked with Mockito
 - Integration tests using H2 Database
 
-## Use IntelliJ Bundled maven on Git Bash
+## Use Maven from a specific project fom intellij terminal
+
+https://www.jetbrains.com/help/idea/terminal-emulator.html#jqufbj_147
+
+## Maven Commands
+
+- **Unit tests**:
 
 ```shell
-export PATH="/c/Program Files/JetBrains/IntelliJ IDEA Community Edition 2023.2/plugins/maven/lib/maven3/bin:$PATH"
+mvn test -P unit-test
+```
+
+-**Integration tests**:
+
+```shell
+mvn test -P integration-test
+```
+
+-**System tests**:
+
+```shell
+mvn test -P system-test
 ```
