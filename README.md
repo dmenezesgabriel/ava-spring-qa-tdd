@@ -49,5 +49,3 @@ npm install -g allure-commandline
 ```shell
 npx allure serve target/allure-results
 ```
-
-PATH=$(npm get prefix)

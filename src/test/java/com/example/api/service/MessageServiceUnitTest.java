@@ -4,6 +4,8 @@ import com.example.api.exception.MessageNotFoundException;
 import com.example.api.model.Message;
 import com.example.api.repository.MessageRepository;
 import com.example.api.utils.MessageHelper;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,6 +45,7 @@ class MessageServiceUnitTest {
     }
 
     @Test
+    @Severity(SeverityLevel.BLOCKER)
     void shouldAllowRegisterMessage() {
         // Arrange
         var newMessage = MessageHelper.createMessage();
@@ -63,6 +66,7 @@ class MessageServiceUnitTest {
     }
 
     @Test
+    @Severity(SeverityLevel.CRITICAL)
     void shouldAllowGetMessage() {
         // Arrange
         var id = UUID.randomUUID();
@@ -81,6 +85,7 @@ class MessageServiceUnitTest {
     }
 
     @Test
+    @Severity(SeverityLevel.MINOR)
     void shouldThrowExceptionWhenGetIfMessageIdNotFound() {
         // Arrange
         var id = UUID.randomUUID();

@@ -2,6 +2,7 @@ package com.example.api.controller;
 
 import com.example.api.model.Message;
 import com.example.api.utils.MessageHelper;
+import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -43,6 +44,7 @@ public class MessageControllerIntegrationTest {
         void shouldAllowRegisterMessage() {
             var message = MessageHelper.createMessage();
             given()
+                    .filters(new AllureRestAssured())
                     .contentType(MediaType.APPLICATION_JSON_VALUE)
                     .body(message)
                     // .log().all()
@@ -61,6 +63,7 @@ public class MessageControllerIntegrationTest {
                 <message><username>Name</username><content>Hello!</content></message>
                 """;
             given()
+                    .filters(new AllureRestAssured())
                     .contentType(MediaType.APPLICATION_JSON_VALUE)
                     .body(xmlPayload)
                     .when()
@@ -82,8 +85,9 @@ public class MessageControllerIntegrationTest {
         @Test
         void shouldAllowGetMessage() {
             var id = "cf9f5083-c5fb-4061-91cf-cd80eec30c89";
-
-            when()
+            given()
+                .filters(new AllureRestAssured())
+                .when()
                 .get("/messages/{id}", id)
                 .then()
                 .statusCode(HttpStatus.OK.value());
@@ -92,7 +96,9 @@ public class MessageControllerIntegrationTest {
         @Test
         void shouldThrowExceptionWhenGetIfMessageIdNotFound() {
             var id = UUID.randomUUID();
-            when()
+            given()
+                    .filters(new AllureRestAssured())
+                    .when()
                     .get("/messages/{id}", id)
                     .then()
                     .statusCode(HttpStatus.BAD_REQUEST.value());
@@ -112,6 +118,7 @@ public class MessageControllerIntegrationTest {
                     .updatedAt(timestamp)
                     .build();
             given()
+                    .filters(new AllureRestAssured())
                     .contentType(MediaType.APPLICATION_JSON_VALUE)
                     .body(message)
                     .when()
@@ -132,6 +139,7 @@ public class MessageControllerIntegrationTest {
                     .updatedAt(timestamp)
                     .build();
             given()
+                    .filters(new AllureRestAssured())
                     .contentType(MediaType.APPLICATION_JSON_VALUE)
                     .body(message)
                     .when()
@@ -152,6 +160,7 @@ public class MessageControllerIntegrationTest {
                     .updatedAt(timestamp)
                     .build();
             given()
+                    .filters(new AllureRestAssured())
                     .contentType(MediaType.APPLICATION_JSON_VALUE)
                     .body(message)
                     .when()
@@ -168,6 +177,7 @@ public class MessageControllerIntegrationTest {
                 <message><username>Name</username><content>Hello!</content></message>
                 """;
             given()
+                    .filters(new AllureRestAssured())
                     .contentType(MediaType.APPLICATION_JSON_VALUE)
                     .body(xmlPayload)
                     .when()
@@ -184,7 +194,9 @@ public class MessageControllerIntegrationTest {
         @Test
         void shouldAllowDeleteMessage() {
             var id = UUID.fromString("f4158f3e-7d31-45e9-84bd-19fdea672af3");
-            when()
+            given()
+                    .filters(new AllureRestAssured())
+                    .when()
                     .delete("/messages/{id}", id)
                     .then()
                     .statusCode(HttpStatus.OK.value())
@@ -194,7 +206,9 @@ public class MessageControllerIntegrationTest {
         @Test
         void shouldThrowExceptionWhenDeleteIfMessageIdNotFound() {
             var id = UUID.randomUUID();
-            when()
+            given()
+                    .filters(new AllureRestAssured())
+                    .when()
                     .delete("/messages/{id}", id)
                     .then()
                     .statusCode(HttpStatus.BAD_REQUEST.value())
@@ -207,6 +221,7 @@ public class MessageControllerIntegrationTest {
         @Test
         void shouldAllowListMessages() {
             given()
+                    .filters(new AllureRestAssured())
                     .queryParam("page", "0")
                     .queryParam("size", "10")
                     .when()
@@ -219,6 +234,7 @@ public class MessageControllerIntegrationTest {
         @Test
         void shouldAllowListMessagesWhenPaginationParamsNotInformed() {
             given()
+                    .filters(new AllureRestAssured())
                     .when()
                     .get("/messages")
                     .then()
