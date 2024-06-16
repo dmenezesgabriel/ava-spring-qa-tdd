@@ -15,6 +15,11 @@ system-test:
 	mvn test -P system-test
 	make stop-app
 
+performance-test:
+	make start-app
+	mvn gatling:test -P performance-test
+	make stop-app
+
 package:
 	@echo "===== Packaging App ====="
 	mvn package

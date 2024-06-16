@@ -8,6 +8,7 @@
     <version>3.3.0</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
+
   <groupId>example</groupId>
   <artifactId>api</artifactId>
   <version>0.0.1-SNAPSHOT</version>
@@ -129,6 +130,17 @@
       <groupId>io.qameta.allure</groupId>
       <artifactId>allure-rest-assured</artifactId>
       <version>2.23.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.gatling</groupId>
+      <artifactId>gatling-app</artifactId>
+      <version>3.11.3</version>
+    </dependency>
+    <dependency>
+      <groupId>io.gatling.highcharts</groupId>
+      <artifactId>gatling-charts-highcharts</artifactId>
+      <version>3.11.3</version>
     </dependency>
   </dependencies>
 
@@ -252,6 +264,22 @@
                 <version>${aspectj.version}</version>
               </dependency>
             </dependencies>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>performance-test</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>io.gatling</groupId>
+            <artifactId>gatling-maven-plugin</artifactId>
+            <version>4.3.7</version>
+            <configuration>
+              <simulationClass>com.example.api.performance.PerformanceSimulation</simulationClass>
+            </configuration>
           </plugin>
         </plugins>
       </build>
