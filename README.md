@@ -11,6 +11,12 @@ Project done in FIAP's Software Architecture Post Graduation course with the pur
 
 https://www.jetbrains.com/help/idea/terminal-emulator.html#jqufbj_147
 
+## Install Maven
+
+```shell
+chocolatey install maven
+```
+
 ## Maven Commands
 
 - **Unit tests**:

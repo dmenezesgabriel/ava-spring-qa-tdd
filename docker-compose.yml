@@ -1,9 +1,22 @@
 version: '3.9'
 
 services:
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/postgres
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_JPT_HIBERNATE_DDL_AUTO=create-drop
 
   db:
-    image: postgres
+    image: postgres:latest
     ports:
       - "5432:5432"
     environment:
